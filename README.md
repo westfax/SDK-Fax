@@ -7,7 +7,7 @@ plus associated Demo Project.
 
 ### WestFax API
 
-The WestFax API is comprised of a large set of methods that are exposed using a RESTful interface.  Data can be interchanged in a number of formats including JSON and XML.  Additionally, WestFax offers SOAP and RPC bindings that are described elsewhere.  For the purposes of this document and the SDK, the REST interface with JSON encoding is used.  WestFax hosts the API servers in its dedicated and secure datacenters, providing robust and fault tolerant access to our Cloud Fax API.
+The WestFax API is comprised of a large set of methods that are exposed using a RESTful interface.  Data can be interchanged in a number of formats including JSON and XML.  Additionally, WestFax offers SOAP and RPC bindings that are described elsewhere.  For the purposes of this document and the SDK, the REST interface with JSON encoding is used.  WestFax hosts the API servers in its dedicated and secure datacenters, providing robust and fault tolerant access to our Cloud Fax API.  Request a demo account here: https://westfax.com/developer-registration/
 
 ### Purpose
 
