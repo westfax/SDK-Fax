@@ -14,6 +14,9 @@
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
+  <PropertyGroup>
+    <RunPostBuildEvent>Always</RunPostBuildEvent>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
@@ -31,16 +34,14 @@
     <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
     <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
   </PropertyGroup>
-  <PropertyGroup>
-    <RunPostBuildEvent>Always</RunPostBuildEvent>
-  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\binaries\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Management" />
     <Reference Include="System.Security" />
     <Reference Include="System.Web" />
@@ -61,6 +62,16 @@
     <Compile Include="FileSystem\FileHelperWinAPI.cs" />
     <Compile Include="FileSystem\FileSystemEnumerator.cs" />
     <Compile Include="GuidHelper.cs" />
+    <Compile Include="Imaging\BitmapHelper.cs" />
+    <Compile Include="Imaging\ImageConverter.cs" />
+    <Compile Include="Imaging\ImageEnums.cs" />
+    <Compile Include="Imaging\ImageHelper.cs" />
+    <Compile Include="Imaging\ImageInfo.cs" />
+    <Compile Include="Imaging\ImageOperationResult.cs" />
+    <Compile Include="Imaging\ImageProperty.cs" />
+    <Compile Include="Imaging\ImageUtility.cs" />
+    <Compile Include="Imaging\PageImage.cs" />
+    <Compile Include="Imaging\PageInfo.cs" />
     <Compile Include="SecureString.cs" />
     <Compile Include="FileSystem\Tuple.cs" />
     <Compile Include="FileSystem\WfDriveInfo.cs" />
@@ -81,12 +92,11 @@
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
+    <PostBuildEvent>xcopy "$(TargetDir)$(TargetName).dll" "C:\code\WFExternal\binaries\" /F /R /Y /I
+xcopy "$(TargetDir)$(TargetName).pdb" "C:\code\WFExternal\binaries\" /F /R /Y /I</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PreBuildEvent>
-    </PreBuildEvent>
+    <PreBuildEvent>"C:\code\Source\Solutions\BuildScripting\FileHelper.exe" /p "$(ProjectDir)"</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

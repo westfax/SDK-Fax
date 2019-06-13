@@ -176,12 +176,19 @@ namespace WF.SDK.Common
       //Type array of the parameters for overload matching
       Type[] types = new Type[0];
       if (methodParams != null && methodParams.Length > 0) { types = methodParams.ToList().Select(i => i.GetType()).ToArray(); }
+
       //Find the method.
       MethodInfo inf = null;
-      //Try to find the method.
-      inf = t.GetMethod(methodName, ObjectHelper.flags, null, types, null);
+      //Try to find the method
+      if (inf == null) { try { inf = t.GetMethod(methodName, ObjectHelper.flags, null, types, null); } catch { } }
       //Try again without methodParams
-      if (inf == null) { inf = t.GetMethod(methodName, ObjectHelper.flags); }
+      if (inf == null) { try { inf = t.GetMethod(methodName, ObjectHelper.flags); } catch { } }
+
+      //Try the base?
+      if (inf == null) { try { inf = t.BaseType.GetMethod(methodName, ObjectHelper.flags, null, types, null); } catch { } }
+      //Try again without methodParams
+      if (inf == null) { try { inf = t.BaseType.GetMethod(methodName, ObjectHelper.flags); } catch { } }
+
       //Throw exception if it is still null
       if (inf == null) { throw new Exception("Cannot find method named: " + methodName); }
       try
@@ -203,12 +210,19 @@ namespace WF.SDK.Common
       //Type array of the parameters for overload matching
       Type[] types = new Type[0];
       if (methodParams != null && methodParams.Length > 0) { types = methodParams.ToList().Select(i => i.GetType()).ToArray(); }
+
       //Find the method.
       MethodInfo inf = null;
-      //Try to find the method.
-      inf = t.GetMethod(methodName, ObjectHelper.flags, null, types, null);
+      //Try to find the method
+      if (inf == null) { try { inf = t.GetMethod(methodName, ObjectHelper.flags, null, types, null); } catch { } }
       //Try again without methodParams
-      if (inf == null) { inf = t.GetMethod(methodName, ObjectHelper.flags); }
+      if (inf == null) { try { inf = t.GetMethod(methodName, ObjectHelper.flags); } catch { } }
+
+      //Try the base?
+      if (inf == null) { try { inf = t.BaseType.GetMethod(methodName, ObjectHelper.flags, null, types, null); } catch { } }
+      //Try again without methodParams
+      if (inf == null) { try { inf = t.BaseType.GetMethod(methodName, ObjectHelper.flags); } catch { } }
+
       //Throw exception if it is still null
       if (inf == null) { throw new Exception("Cannot find method named: " + methodName); }
       try

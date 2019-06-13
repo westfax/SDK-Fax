@@ -9,6 +9,7 @@ namespace WF.SDK.Models
   public class LoginInfo
   {
     public Guid Id;
+    public Guid PrimaryAccountId;
     public string UserName;
     public string PassWord;
     public string DigitUserName;
@@ -22,6 +23,7 @@ namespace WF.SDK.Models
     public LoginInfo(Internal.LoginInfoItem item)
     {
       this.Id = item.Id;
+      this.PrimaryAccountId = item.PrimaryAccountId;
       this.UserName = item.UserName;
       this.PassWord = item.PassWord;
       this.DigitUserName = item.DigitUserName;
@@ -47,6 +49,7 @@ namespace WF.SDK.Models
       var ret = new Models.Internal.LoginInfoItem();
 
       ret.Id = obj.Id;
+      ret.PrimaryAccountId = obj.PrimaryAccountId;
       ret.UserName = obj.UserName;
       ret.PassWord = obj.PassWord;
       ret.DigitPassWord = obj.DigitPassWord;

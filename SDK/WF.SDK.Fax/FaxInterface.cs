@@ -450,10 +450,11 @@ namespace WF.SDK.Fax
     public static ApiResult<string> SendFax(string username, string password, Guid productId,
       List<string> numbers, HttpFileCollection files,
       string csid, string ani, DateTime? startDate = null, string faxQuality = "Fine",
-      string jobname = "", string header = "", string billingCode = "", string feedbackEmail = null)
+      string jobname = "", string header = "", string billingCode = "", 
+      string feedbackEmail = null, string callbackUrl = null, List<string> custKeys1 = null)
     {
 
-      var rstr = Internal.FaxInterfaceRaw.SendFax(username, password, productId, numbers, files, csid, ani, startDate, faxQuality, jobname, header, billingCode, feedbackEmail);
+      var rstr = Internal.FaxInterfaceRaw.SendFax(username, password, productId, numbers, files, csid, ani, startDate, faxQuality, jobname, header, billingCode, feedbackEmail, callbackUrl, custKeys1);
       var ret = WF.SDK.Common.JSONSerializerHelper.Deserialize<ApiResult<string>>(rstr);
       return ret;
     }
@@ -465,9 +466,10 @@ namespace WF.SDK.Fax
     public static ApiResult<string> SendFax(string username, string password, Guid productId,
       List<string> numbers, FileDetail file,
       string csid, string ani, DateTime? startDate = null, string faxQuality = "Fine",
-      string jobname = "", string header = "", string billingCode = "", string feedbackEmail = null)
+      string jobname = "", string header = "", string billingCode = "", 
+      string feedbackEmail = null, string callbackUrl = null, List<string> custKeys1 = null)
     {
-      var rstr = Internal.FaxInterfaceRaw.SendFax(username, password, productId, numbers,  file.FileContents, file.Filename, csid, ani, startDate, faxQuality, jobname, header, billingCode, feedbackEmail);
+      var rstr = Internal.FaxInterfaceRaw.SendFax(username, password, productId, numbers, file.FileContents, file.Filename, csid, ani, startDate, faxQuality, jobname, header, billingCode, feedbackEmail, callbackUrl, custKeys1);
       var ret = WF.SDK.Common.JSONSerializerHelper.Deserialize<ApiResult<string>>(rstr);
       return ret;
     }
@@ -479,9 +481,10 @@ namespace WF.SDK.Fax
     public static ApiResult<string> SendFax(string username, string password, Guid productId,
       List<string> numbers, List<string> filePaths,
       string csid, string ani, DateTime? startDate = null, string faxQuality = "Fine",
-      string jobname = "", string header = "", string billingCode = "", string feedbackEmail = null)
+      string jobname = "", string header = "", string billingCode = "",
+      string feedbackEmail = null, string callbackUrl = null, List<string> custKeys1 = null)
     {
-      var rstr = Internal.FaxInterfaceRaw.SendFax(username, password, productId, numbers, filePaths, csid, ani, startDate, faxQuality, jobname, header, billingCode, feedbackEmail);
+      var rstr = Internal.FaxInterfaceRaw.SendFax(username, password, productId, numbers, filePaths, csid, ani, startDate, faxQuality, jobname, header, billingCode, feedbackEmail, callbackUrl, custKeys1);
       var ret = WF.SDK.Common.JSONSerializerHelper.Deserialize<ApiResult<string>>(rstr);
       return ret;
     }

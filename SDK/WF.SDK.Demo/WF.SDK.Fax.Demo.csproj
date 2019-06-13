@@ -37,7 +37,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\binaries\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="nunit.framework">
+    <Reference Include="nunit.framework, Version=2.4.0.2, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\binaries\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -59,8 +60,12 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Deploy-App.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="TestDocuments\Lorem ipsum 2.docx" />
     <None Include="TestDocuments\Lorem ipsum.docx" />
+    <Content Include="WorkingAppConfig-DoNotDeploy.txt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WF.SDK.Common\WF.SDK.Common.csproj">
@@ -77,8 +82,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>
-    </PreBuildEvent>
+    <PreBuildEvent>"C:\code\Source\Solutions\BuildScripting\FileHelper.exe" /p "$(ProjectDir)"</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

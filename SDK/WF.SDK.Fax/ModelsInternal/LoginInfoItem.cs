@@ -9,6 +9,7 @@ namespace WF.SDK.Models.Internal
   public class LoginInfoItem
   {
     public Guid Id;
+    public Guid PrimaryAccountId;
     public string UserName;
     public string PassWord;
     public string DigitUserName;

@@ -60,7 +60,7 @@ namespace WF.SDK.Common
     }
 
     [XmlIgnore]
-    public override int Count { get { return 2; } }
+    public override int Count { get { return 2; } } 
   }
 
 

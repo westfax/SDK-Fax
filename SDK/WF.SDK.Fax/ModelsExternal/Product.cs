@@ -56,7 +56,7 @@ namespace WF.SDK.Models
       this.InboundNumber = "";
     }
 
-    internal Product(Internal.F2EProductItem item)
+    public Product(Internal.F2EProductItem item)
       : this()
     {
       this.Id = item.Id;

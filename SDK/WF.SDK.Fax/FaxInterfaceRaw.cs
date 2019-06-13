@@ -266,8 +266,9 @@ namespace WF.SDK.Fax.Internal
     /// </summary>
     public static string SendFax(string username, string password, Guid productId,
       List<string> numbers, HttpFileCollection files,
-       string csid, string ani, DateTime? startDate = null, string faxQuality = "Fine",
-      string jobname = "", string header = "", string billingCode = "", string feedbackEmail = null)
+      string csid, string ani, DateTime? startDate = null, string faxQuality = "Fine",
+      string jobname = "", string header = "", string billingCode = "", 
+      string feedbackEmail = null, string callbackUrl = null, List<string> custKeys1 = null)
     {
 
       //Username : <input name="Username" type="text" value="<?php print $username; ?>"><br>
@@ -290,6 +291,13 @@ namespace WF.SDK.Fax.Internal
 
       //Add the numbers collection
       Common.wwHttpHelper.AddParameterList(http, numbers, "Numbers");  //Required
+
+      //These will get tacked on to the CustomerKey1
+      //Make sure the Names and numbers collections are the same.  Otherwise don't include.
+      if (custKeys1 != null && custKeys1.Count == numbers.Count)
+      {
+        Common.wwHttpHelper.AddParameterList(http, custKeys1, "StringParams");  //Not Required
+      }
 
       //Add the files collection 
       //Required
@@ -309,6 +317,7 @@ namespace WF.SDK.Fax.Internal
       if (startDate.HasValue) { http.AddPostKey("StartDate", startDate.Value.ToString("G")); }  //Optional
       if (!String.IsNullOrEmpty(faxQuality)) { http.AddPostKey("FaxQuality", faxQuality); }  //Optional
       if (!String.IsNullOrEmpty(feedbackEmail)) { http.AddPostKey("FeedbackEmail", feedbackEmail); }  //Optional
+      if (!String.IsNullOrEmpty(callbackUrl)) { http.AddPostKey("CallbackUrl", callbackUrl); }  //Optional
 
       return FaxInterfaceRaw.GetResponseStr(http, String.Format(FaxInterfaceRaw.RestUrlTemplate, method));
     }
@@ -321,8 +330,9 @@ namespace WF.SDK.Fax.Internal
     /// </summary>
     public static string SendFax(string username, string password, Guid productId,
       List<string> numbers, byte[] fileContent, string fileName,
-       string csid, string ani, DateTime? startDate = null, string faxQuality = "Fine",
-      string jobname = "", string header = "", string billingCode = "", string feedbackEmail = null)
+      string csid, string ani, DateTime? startDate = null, string faxQuality = "Fine",
+      string jobname = "", string header = "", string billingCode = "", 
+      string feedbackEmail = null, string callbackUrl = null, List<string> custKeys1 = null)
     {
 
       //Username : <input name="Username" type="text" value="<?php print $username; ?>"><br>
@@ -345,6 +355,13 @@ namespace WF.SDK.Fax.Internal
 
       //Add the numbers collection
       Common.wwHttpHelper.AddParameterList(http, numbers, "Numbers");  //Required
+
+      //These will get tacked on to the CustomerKey1
+      //Make sure the Names and numbers collections are the same.  Otherwise don't include.
+      if (custKeys1 != null && custKeys1.Count == numbers.Count)
+      {
+        Common.wwHttpHelper.AddParameterList(http, custKeys1, "StringParams");  //Not Required
+      }
 
       //Add the files collection 
       //Required
@@ -360,6 +377,8 @@ namespace WF.SDK.Fax.Internal
       if (startDate.HasValue) { http.AddPostKey("StartDate", startDate.Value.ToString("G")); }  //Optional
       if (!String.IsNullOrEmpty(faxQuality)) { http.AddPostKey("FaxQuality", faxQuality); }  //Optional
       if (!String.IsNullOrEmpty(feedbackEmail)) { http.AddPostKey("FeedbackEmail", feedbackEmail); }  //Optional
+      if (!String.IsNullOrEmpty(callbackUrl)) { http.AddPostKey("CallbackUrl", callbackUrl); }  //Optional
+
 
       return FaxInterfaceRaw.GetResponseStr(http, String.Format(FaxInterfaceRaw.RestUrlTemplate, method));
     }
@@ -373,7 +392,8 @@ namespace WF.SDK.Fax.Internal
     public static string SendFax(string username, string password, Guid productId,
       List<string> numbers, List<string> filePaths,
       string csid, string ani, DateTime? startDate = null, string faxQuality = "Fine",
-      string jobname = "", string header = "", string billingCode = "", string feedbackEmail = null)
+      string jobname = "", string header = "", string billingCode = "", 
+      string feedbackEmail = null, string callbackUrl = null, List<string> custKeys1 = null)
     {
 
       //Username : <input name="Username" type="text" value="<?php print $username; ?>"><br>
@@ -396,6 +416,13 @@ namespace WF.SDK.Fax.Internal
 
       //Add the numbers collection
       Common.wwHttpHelper.AddParameterList(http, numbers, "Numbers");  //Required
+
+      //These will get tacked on to the CustomerKey1
+      //Make sure the Names and numbers collections are the same.  Otherwise don't include.
+      if (custKeys1 != null && custKeys1.Count == numbers.Count)
+      {
+        Common.wwHttpHelper.AddParameterList(http, custKeys1, "StringParams");  //Not Required
+      }
 
       //Add the files collection 
       //Required
@@ -412,15 +439,16 @@ namespace WF.SDK.Fax.Internal
         http.AddPostFile("Files" + counter.ToString(), content, filename);
       }
 
-      http.AddPostKey("JobName", jobname);  //Required
-      http.AddPostKey("Header", header);  //Required
-      http.AddPostKey("BillingCode", billingCode);  //Required
+      http.AddPostKey("JobName", jobname??"");  //Required
+      http.AddPostKey("Header", header??"");  //Required
+      http.AddPostKey("BillingCode", billingCode??"");  //Required
 
       if (!String.IsNullOrEmpty(csid)) { http.AddPostKey("CSID", csid); }  //Optional
       if (!String.IsNullOrEmpty(ani)) { http.AddPostKey("ANI", ani); }  //Optional
       if (startDate.HasValue) { http.AddPostKey("StartDate", startDate.Value.ToString("G")); }  //Optional
       if (!String.IsNullOrEmpty(faxQuality)) { http.AddPostKey("FaxQuality", faxQuality); }  //Optional
       if (!String.IsNullOrEmpty(feedbackEmail)) { http.AddPostKey("FeedbackEmail", feedbackEmail); }  //Optional
+      if (!String.IsNullOrEmpty(callbackUrl)) { http.AddPostKey("CallbackUrl", callbackUrl); }  //Optional
 
       return FaxInterfaceRaw.GetResponseStr(http, String.Format(FaxInterfaceRaw.RestUrlTemplate, method));
     }
