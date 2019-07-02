@@ -1,4 +1,0 @@
-C:\code\WF.SDK\SDK\WF.NotificationHandler.Sample\bin\WF.NotificationHandler.Sample.dll
-C:\code\WF.SDK\SDK\WF.NotificationHandler.Sample\bin\WF.NotificationHandler.Sample.pdb
-C:\code\WF.SDK\SDK\WF.NotificationHandler.Sample\obj\Debug\WF.NotificationHandler.Sample.dll
-C:\code\WF.SDK\SDK\WF.NotificationHandler.Sample\obj\Debug\WF.NotificationHandler.Sample.pdb

@@ -60,12 +60,8 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Deploy-App.config">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="TestDocuments\Lorem ipsum 2.docx" />
     <None Include="TestDocuments\Lorem ipsum.docx" />
-    <Content Include="WorkingAppConfig-DoNotDeploy.txt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WF.SDK.Common\WF.SDK.Common.csproj">
@@ -77,12 +73,10 @@
       <Name>WF.SDK.Fax</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="PublishingTheDemo-DoNotDeploy.txt" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>"C:\code\Source\Solutions\BuildScripting\FileHelper.exe" /p "$(ProjectDir)"</PreBuildEvent>
+    <PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
