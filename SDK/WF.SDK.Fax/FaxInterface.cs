@@ -20,8 +20,8 @@ namespace WF.SDK.Fax
     static FaxInterface()
     {
       //You can configure this statically here and compile, or set the URL template above from another source such as confguration
-      //FaxInterface.RestUrlTemplate = System.Configuration.ConfigurationManager.AppSettings["APIEncoding"];  //From config?
-      //FaxInterface.RestUrlTemplate = "https://api2.westfax.com/REST/{0}/json";  //Statically?
+      //FaxInterface.RestUrlTemplate = System.Configuration.ConfigurationManager.AppSettings["APIEncoding"];   //From config?
+      //FaxInterface.RestUrlTemplate = "https://api2.westfax.com/REST/{0}/json";   //Statically?
       //Encoding can be json, json2, xml.
     }
 
