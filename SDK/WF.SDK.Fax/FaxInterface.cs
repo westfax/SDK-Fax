@@ -20,8 +20,8 @@ namespace WF.SDK.Fax
     static FaxInterface()
     {
       //You can configure this statically here and compile, or set the URL template above from another source such as confguration
-      //FaxInterface.RestUrlTemplate = System.Configuration.ConfigurationManager.AppSettings["APIEncoding"];   //From config?
-      //FaxInterface.RestUrlTemplate = "https://api2.westfax.com/REST/{0}/json";   //Statically?
+      //FaxInterface.RestUrlTemplate = System.Configuration.ConfigurationManager.AppSettings["APIEncoding"];  //From config?
+      //FaxInterface.RestUrlTemplate = "https://api2.westfax.com/REST/{0}/json";  //Statically?
       //Encoding can be json, json2, xml.
     }
 
@@ -442,6 +442,37 @@ namespace WF.SDK.Fax
 
     #endregion
 
+    #region GetProductsWithInboundFaxes
+    /// <summary>
+    /// Get the products that have faxes matching the given filter.  Usually used to 
+    /// determine if there are faxes waiting for download, and what products may have them.
+    /// </summary>
+    public static ApiResult<List<Product>> GetProductsWithInboundFaxes(string username, string password, string filter = "None")
+    {
+      var rstr = Internal.FaxInterfaceRaw.GetProductsWithInboundFaxes(username, password, filter);
+      var result = WF.SDK.Common.JSONSerializerHelper.Deserialize<ApiResult<List<Models.Internal.ProductItem>>>(rstr);
+      var ret = new ApiResult<List<Product>>();
+
+      if (result.Success)
+      {
+        ret.Success = true;
+        ret.ErrorString = result.ErrorString;
+        ret.InfoString = result.InfoString;
+        ret.Result = result.Result.Select(i => new Product(i)).ToList();
+      }
+      else
+      {
+        ret.Success = false;
+        ret.ErrorString = result.ErrorString;
+        ret.InfoString = result.InfoString;
+        ret.Result = new List<Product>();
+      }
+
+      return ret;
+
+    }
+    #endregion
+
     #region SendFax
     /// <summary>
     /// Send a Fax now.
@@ -453,7 +484,6 @@ namespace WF.SDK.Fax
       string jobname = "", string header = "", string billingCode = "", 
       string feedbackEmail = null, string callbackUrl = null, List<string> custKeys1 = null)
     {
-
       var rstr = Internal.FaxInterfaceRaw.SendFax(username, password, productId, numbers, files, csid, ani, startDate, faxQuality, jobname, header, billingCode, feedbackEmail, callbackUrl, custKeys1);
       var ret = WF.SDK.Common.JSONSerializerHelper.Deserialize<ApiResult<string>>(rstr);
       return ret;

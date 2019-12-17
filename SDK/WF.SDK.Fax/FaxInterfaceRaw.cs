@@ -259,6 +259,24 @@ namespace WF.SDK.Fax.Internal
     }
     #endregion
 
+    #region GetProductsWithInboundFaxes
+    /// <summary>
+    /// Get the products that have faxes matching the given filter.  Usually used to 
+    /// determine if there are faxes waiting for download, and what products may have them.
+    /// </summary>
+    public static string GetProductsWithInboundFaxes(string username, string password, string filter = "None")
+    {
+      string method = "Fax_GetProductsWithInboundFaxes";
+      var http = FaxInterfaceRaw.GetHttp(username, password);
+
+      http.AddPostKey("Filter", filter);
+
+      return FaxInterfaceRaw.GetResponseStr(http, String.Format(FaxInterfaceRaw.RestUrlTemplate, method));
+    }
+    #endregion
+
+
+
     #region SendFax
     /// <summary>
     /// Send a Fax now.
@@ -591,6 +609,5 @@ namespace WF.SDK.Fax.Internal
     }
     #endregion
     
-
   }
 }
