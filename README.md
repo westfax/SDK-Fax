@@ -1,7 +1,7 @@
 # .Net C# SDK for WestFax API
 plus associated Demo Project.
 
-![WESTFAX](http://westfax.com/wp-content/uploads/2017/08/WestFax_Color_100x300-300x100.png)
+![WESTFAX](http://westfax.com/wp-content/uploads/2017/08/WestFax_Color_100x300-300x100.pn](https://westfax.com/img/WestFax_Logo.webp)
 
 ## WestFax SDK Demo
 
