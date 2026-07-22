@@ -5,7 +5,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace WF.SDK.Common
 {
@@ -19,7 +18,7 @@ namespace WF.SDK.Common
       {
         return null;
       }
-
+      
       var encryptedData = ProtectedData.Protect(
           Encoding.Unicode.GetBytes(input.ToInsecureString()),
           entropy,
@@ -48,6 +47,41 @@ namespace WF.SDK.Common
       {
         return new SecureString();
       }
+    }
+
+    /// <summary>
+    /// This will return true if the data was successfully decrypted.
+    /// </summary>
+    /// <param name="maybeEncryptedData"></param>
+    /// <param name="decryptedString"></param>
+    /// <returns></returns>
+    public static bool TryDecryptString(this string maybeEncryptedData, out SecureString decryptedString)
+    {
+      decryptedString = null;
+      try
+      {
+        // Check if the string is a valid base64 encoded string
+        byte[] encryptedBytes = Convert.FromBase64String(maybeEncryptedData);
+
+        // Attempt to decrypt using ProtectedData
+        byte[] decryptedBytes = ProtectedData.Unprotect(encryptedBytes, entropy, DataProtectionScope.CurrentUser);
+
+        decryptedString = Encoding.Unicode.GetString(decryptedBytes).ToSecureString();
+
+        // If we reach this point without an exception, decryption was successful
+        return true;
+      }
+      catch (FormatException)
+      {
+        // The string was not a valid base64 string
+        return false;
+      }
+      catch (CryptographicException)
+      {
+        // The string could not be decrypted using ProtectedData
+        return false;
+      }
+      catch { return false; }
     }
 
     public static SecureString ToSecureString(this IEnumerable<char> input)

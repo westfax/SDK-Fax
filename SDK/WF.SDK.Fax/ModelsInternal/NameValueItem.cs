@@ -13,6 +13,18 @@ namespace WF.SDK.Models.Internal
     public string Value;
 
     public NameValueItem() { }
+
+		public NameValueItem(string name, string val) { this.Name = name; this.Value = val; }
+  }
+
+  public static class NameValueItemExtensions
+  {
+    public static string ValueOrDefault(this NameValueItem obj, string def = "")
+    {
+      if (obj == null)
+      { return def; }
+      return obj.Value;
+    }
   }
 
 }

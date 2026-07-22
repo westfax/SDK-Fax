@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 namespace WF.SDK.Common
 {
+
   [Flags]
   public enum GenerationStyle
   {
@@ -20,11 +21,8 @@ namespace WF.SDK.Common
   /// <summary>
   /// This class provides a set of static methods to perform various operations on Strings.
   /// </summary>
-  public sealed class StringHelper
+  public static class StringHelper
   {
-    //Purely static class - private constructor
-    private StringHelper()
-    { }
 
     public const string Zeroto9 = "0123456789";
     public const string AtoZ = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -33,6 +31,25 @@ namespace WF.SDK.Common
     public const string AtoZand0to9 = AtoZ + Zeroto9;
     public const string AtoZand0to9andSpace = AtoZand0to9 + " ";
     public const string LegalFileSystemChars = AtoZand0to9andSpace + "-_.";
+
+    #region Extension Methods
+    /// <summary>
+    /// Truncates the input string to the desired length or leaves the string as is if its short enough. Will add your ellipsis string to the end if it is not empty and the input string is longer than len making sure that the entire string length = len
+    /// </summary>
+    /// <param name="input">The string to truncate.</param>
+    /// <param name="len">The final length of the string.</param>
+    public static string Truncate(this string input, int len, string ellipsis = "")
+    {
+      if (string.IsNullOrEmpty(input)) { return String.Empty; }
+
+      if (input.Length > len)
+      {
+        if (String.IsNullOrEmpty(ellipsis)) { return input.Substring(0, len); }
+        else { return input.Substring(0, len - ellipsis.Length) + ellipsis; }
+      }
+      return input;
+    }
+    #endregion
 
     /// <summary>
     /// Returns the name in lastName, firstName format unless one of them is zero length
@@ -54,12 +71,13 @@ namespace WF.SDK.Common
     }
 
     /// <summary>
-    /// Checks the length of a string and returns a boolean.  True if input.Lenght() == len, false otherwise.
+    /// Checks the length of a string and returns a boolean.  True if input.Length() == len, false otherwise.
     /// </summary>
     /// <param name="input">The String to check.</param>
     /// <param name="len">The length to check for.</param>
     public static bool CheckLength(string input, int len)
     {
+			if (input == null) { return false; }
       if (input.Length == len) { return true; }
       else { return false; }
     }
@@ -71,6 +89,7 @@ namespace WF.SDK.Common
     /// <param name="phoneNum"></param>
     public static bool CheckIsPhoneNumberValidFormat(string phoneNum)
     {
+			if (string.IsNullOrEmpty(phoneNum)) { return false; }
       phoneNum = StringHelper.CleanPhoneNumber(phoneNum);
       if (phoneNum.StartsWith("011") && phoneNum.Length > 7) { return true; }
       if (phoneNum.Length == 10) { return true; }
@@ -81,45 +100,48 @@ namespace WF.SDK.Common
     ///Does a strict check on the 10 digit phone number
     /// </summary>
     /// <param name="phoneNum"></param>
-    public static FFResult<bool> CheckNpaNxxNumberStrict(string phoneNum)
+		public static FCResult<bool> CheckNpaNxxNumberStrict(string phoneNum)
     {
+			if (string.IsNullOrEmpty(phoneNum)) { return new FCResult<bool>(false, new Exception("Length is not 10 digits.")); }
       var temp = phoneNum;
       temp = StringHelper.CleanPhoneNumber(temp);
       temp = StringHelper.StripLeadingChars(temp, '0', '1');
-      if (temp.Length != 10) { return new FFResult<bool>(false, new Exception("Length is not 10 digits.")); }
-      if (temp[0] == '0' || temp[0] == '1') { return new FFResult<bool>(false, new Exception("Invalid NPA digits.  N cannot be 0 or 1.")); }
-      if (temp[3] == '0' || temp[3] == '1') { return new FFResult<bool>(false, new Exception("Invalid NXX digits.  N cannot be 0 or 1.")); }
-      return new FFResult<bool>(true);
+			if (temp.Length != 10) { return new FCResult<bool>(false, new Exception("Length is not 10 digits.")); }
+			if (temp[0] == '0' || temp[0] == '1') { return new FCResult<bool>(false, new Exception("Invalid NPA digits.  N cannot be 0 or 1.")); }
+			if (temp[3] == '0' || temp[3] == '1') { return new FCResult<bool>(false, new Exception("Invalid NXX digits.  N cannot be 0 or 1.")); }
+			return new FCResult<bool>(true);
     }
 
     /// <summary>
     ///Does a strict check on the 3 digit NPA of a number
     /// </summary>
     /// <param name="phoneNum"></param>
-    public static FFResult<bool> CheckNpaStrict(string npa)
+		public static FCResult<bool> CheckNpaStrict(string npa)
     {
+			if (string.IsNullOrEmpty(npa)) { return new FCResult<bool>(false, new Exception("Length is not at least 3 digits.")); }
       var temp = npa;
       temp = StringHelper.CleanPhoneNumber(temp);
       temp = StringHelper.StripLeadingChars(temp, '0', '1');
-      if (temp.Length < 3) { return new FFResult<bool>(false, new Exception("Length is not at least 3 digits.")); }
-      if (temp[0] == '0' || temp[0] == '1') { return new FFResult<bool>(false, new Exception("Invalid NPA digits.  N cannot be 0 or 1.")); }
-      return new FFResult<bool>(true);
+			if (temp.Length < 3) { return new FCResult<bool>(false, new Exception("Length is not at least 3 digits.")); }
+			if (temp[0] == '0' || temp[0] == '1') { return new FCResult<bool>(false, new Exception("Invalid NPA digits.  N cannot be 0 or 1.")); }
+			return new FCResult<bool>(true);
     }
 
     /// <summary>
     ///Does a strict check on the 6 digit NPANXX of a number
     /// </summary>
     /// <param name="phoneNum"></param>
-    public static FFResult<bool> CheckNpaNxxStrict(string npanxx)
+		public static FCResult<bool> CheckNpaNxxStrict(string npanxx)
     {
+			if (string.IsNullOrEmpty(npanxx)) { return new FCResult<bool>(false, new Exception("Length is not at least 6 digits.")); }
       var temp = npanxx;
       temp = StringHelper.CleanPhoneNumber(temp);
       temp = StringHelper.StripLeadingChars(temp, '0', '1');
-      if (temp.Length < 6) { return new FFResult<bool>(false, new Exception("Length is not at least 6 digits.")); }
-      if (temp[0] == '0' || temp[0] == '1') { return new FFResult<bool>(false, new Exception("Invalid NPA digits.  N cannot be 0 or 1.")); }
-      if (temp[3] == '0' || temp[3] == '1') { return new FFResult<bool>(false, new Exception("Invalid NXX digits.  N cannot be 0 or 1.")); }
-      if (temp[4] == '1' && temp[5] == '1') { return new FFResult<bool>(false, new Exception("Invalid NXX digits.  NXX cannot be N11.")); }
-      return new FFResult<bool>(true);
+			if (temp.Length < 6) { return new FCResult<bool>(false, new Exception("Length is not at least 6 digits.")); }
+			if (temp[0] == '0' || temp[0] == '1') { return new FCResult<bool>(false, new Exception("Invalid NPA digits.  N cannot be 0 or 1.")); }
+			if (temp[3] == '0' || temp[3] == '1') { return new FCResult<bool>(false, new Exception("Invalid NXX digits.  N cannot be 0 or 1.")); }
+			if (temp[4] == '1' && temp[5] == '1') { return new FCResult<bool>(false, new Exception("Invalid NXX digits.  NXX cannot be N11.")); }
+			return new FCResult<bool>(true);
     }
 
     /// <summary>
@@ -129,6 +151,8 @@ namespace WF.SDK.Common
     /// <returns>The clean string</returns>
     public static string CleanPhoneNumber(string phoneNum)
     {
+			if (string.IsNullOrEmpty(phoneNum)) { return phoneNum; }
+     
       phoneNum = StringHelper.StripNonNumeric(phoneNum);
       phoneNum = StringHelper.StripLeading1(phoneNum);
       return phoneNum;
@@ -140,6 +164,8 @@ namespace WF.SDK.Common
     /// <param name="input">The string to strip.</param>
     public static string StripNonNumeric(string input)
     {
+			if (string.IsNullOrEmpty(input)) { return input; }
+
       char[] c = input.ToCharArray();
       for (int i = 0; i < c.Length; i++)
       {
@@ -168,6 +194,8 @@ namespace WF.SDK.Common
     /// <param name="input">The string to strip.</param>
     public static string StripNonNumericCurrency(string input)
     {
+			if (string.IsNullOrEmpty(input)) { return input; }
+
       char[] c = input.ToCharArray();
       for (int i = 0; i < c.Length; i++)
       {
@@ -197,6 +225,7 @@ namespace WF.SDK.Common
     /// <param name="input">The string to strip.</param>
     public static string StripNumeric(string input)
     {
+			if (string.IsNullOrEmpty(input)) { return input; }
       return System.Text.RegularExpressions.Regex.Replace(input, @"\d", "");
     }
 
@@ -206,6 +235,7 @@ namespace WF.SDK.Common
     /// <param name="input">The string to strip.</param>
     public static string StripLeading1(string input)
     {
+			if (string.IsNullOrEmpty(input)) { return input; }
       return StringHelper.StripLeadingChars(input, '1');
     }
 
@@ -214,7 +244,9 @@ namespace WF.SDK.Common
     /// </summary>
     /// <param name="input">The string to strip.</param>
     public static string StripLeadingChars(string input, params char[] chars)
-    {
+		{
+			if (string.IsNullOrEmpty(input)) { return input; }
+
       string temp = input;
       temp = temp.Trim();
       bool done = false;
@@ -240,6 +272,8 @@ namespace WF.SDK.Common
     /// <param name="input">The string to clean.</param>
     public static string RemoveSpecialCharacters(string input)
     {
+			if (string.IsNullOrEmpty(input)) { return input; }
+
       string temp = input;
       temp = temp.Replace("\v", "");   //Vertical Tab
       temp = temp.Replace("\f", "");   //Formfeed
@@ -256,6 +290,7 @@ namespace WF.SDK.Common
     /// </summary>
     public static string StripStringLeaveLegalCharacters(char[] legalCharacters, string stringToStrip)
     {
+			if (string.IsNullOrEmpty(stringToStrip)) { return stringToStrip; }
       string ret = "";
       foreach (char c in stringToStrip.ToCharArray())
       {
@@ -272,7 +307,8 @@ namespace WF.SDK.Common
     /// </summary>
     public static string StripStringLeaveLegalCharacters(string legalCharacters, string stringToStrip)
     {
-      return StringHelper.StripStringLeaveLegalCharacters(legalCharacters.ToCharArray(), stringToStrip);
+			if (string.IsNullOrEmpty(stringToStrip)) { return stringToStrip; } 
+			return StringHelper.StripStringLeaveLegalCharacters(legalCharacters.ToCharArray(), stringToStrip);
     }
 
     /// <summary>
@@ -280,7 +316,8 @@ namespace WF.SDK.Common
     /// </summary>
     public static string StripStringLeaveHexChars(string stringToStrip)
     {
-      return StringHelper.StripStringLeaveLegalCharacters(StringHelper.HexChars.ToCharArray(), stringToStrip);
+			if (string.IsNullOrEmpty(stringToStrip)) { return stringToStrip; } 
+			return StringHelper.StripStringLeaveLegalCharacters(StringHelper.HexChars.ToCharArray(), stringToStrip);
     }
 
     /// <summary>
@@ -288,7 +325,8 @@ namespace WF.SDK.Common
     /// </summary>
     public static string StripStringLeaveAtoZ(string stringToStrip)
     {
-      return StringHelper.StripStringLeaveLegalCharacters(StringHelper.AtoZ.ToCharArray(), stringToStrip);
+			if (string.IsNullOrEmpty(stringToStrip)) { return stringToStrip; } 
+			return StringHelper.StripStringLeaveLegalCharacters(StringHelper.AtoZ.ToCharArray(), stringToStrip);
     }
 
     /// <summary>
@@ -296,7 +334,8 @@ namespace WF.SDK.Common
     /// </summary>
     public static string StripStringLeaveAtoZand0to9andSpace(string stringToStrip)
     {
-      return StringHelper.StripStringLeaveLegalCharacters(StringHelper.AtoZand0to9andSpace.ToCharArray(), stringToStrip);
+			if (string.IsNullOrEmpty(stringToStrip)) { return stringToStrip; } 
+			return StringHelper.StripStringLeaveLegalCharacters(StringHelper.AtoZand0to9andSpace.ToCharArray(), stringToStrip);
     }
 
     /// <summary>
@@ -304,7 +343,8 @@ namespace WF.SDK.Common
     /// </summary>
     public static string StripStringLeaveAtoZand0to9andReplaceSpace(string stringToStrip, char replaceSpaceChar)
     {
-      return StringHelper.StripStringLeaveLegalCharacters(StringHelper.AtoZand0to9andSpace.ToCharArray(), stringToStrip).Replace(' ', replaceSpaceChar);
+			if (string.IsNullOrEmpty(stringToStrip)) { return stringToStrip; } 
+			return StringHelper.StripStringLeaveLegalCharacters(StringHelper.AtoZand0to9andSpace.ToCharArray(), stringToStrip).Replace(' ', replaceSpaceChar);
     }
 
     /// <summary>
@@ -312,16 +352,18 @@ namespace WF.SDK.Common
     /// </summary>
     public static string StripStringLeaveAtoZand0to9andReplaceSpace(string stringToStrip, string replaceSpaceStr)
     {
+			if (string.IsNullOrEmpty(stringToStrip)) { return stringToStrip; }
       return StringHelper.StripStringLeaveLegalCharacters(StringHelper.AtoZand0to9andSpace.ToCharArray(), stringToStrip).Replace(" ", replaceSpaceStr);
     }
 
     /// <summary>
     /// Removes the all but the legal characters
     /// </summary>
-    public static string StripStringLeaveAtoZand0to9(string stringToStrip)
-    {
-      return StringHelper.StripStringLeaveLegalCharacters(StringHelper.AtoZand0to9.ToCharArray(), stringToStrip);
-    }
+		public static string StripStringLeaveAtoZand0to9(string stringToStrip)
+		{
+			if (string.IsNullOrEmpty(stringToStrip)) { return stringToStrip; }
+			return StringHelper.StripStringLeaveLegalCharacters(StringHelper.AtoZand0to9.ToCharArray(), stringToStrip);
+		}
 
     #endregion
 
@@ -331,6 +373,8 @@ namespace WF.SDK.Common
     /// </summary>
     public static string StripIllegalCharactersFromString(char[] illegalCharacters, string stringToStrip)
     {
+			if (string.IsNullOrEmpty(stringToStrip)) { return stringToStrip; }
+
       string temp = stringToStrip;
       foreach (char c in illegalCharacters)
       {
@@ -352,6 +396,8 @@ namespace WF.SDK.Common
     /// </summary>
     public static string StripIllegalCharactersFromFullPath(string fullPath)
     {
+			if (string.IsNullOrEmpty(fullPath)) { return fullPath; }
+
       //Split off the directory part
       string dir = System.IO.Path.GetDirectoryName(fullPath);
       dir = StringHelper.StripIllegalCharactersFromString(System.IO.Path.GetInvalidPathChars(), dir);
@@ -372,25 +418,15 @@ namespace WF.SDK.Common
     /// <returns>The Safe String</returns>
     public static string SqlEscape(string input)
     {
+			if (string.IsNullOrEmpty(input)) { return input; }
+
       string ret = input;
       ret = ret.Replace("'", "''");
       ret = ret.Replace("|", "");
       return ret;
     }
 
-    /// <summary>
-    /// Truncates the input string to the desired length or leaves the string as is if its short enough.
-    /// </summary>
-    /// <param name="input">The string to truncate.</param>
-    /// <param name="len">The final length of the string.</param>
-    public static string Truncate(string input, int len)
-    {
-      if (input.Length > len)
-      {
-        return input.Substring(0, len);
-      }
-      return input;
-    }
+    
 
     #region GenerateRandomString
     public static string GenerateRandomString(int length)
@@ -560,42 +596,44 @@ namespace WF.SDK.Common
       return ret;
     }
 
-    /// <summary>
-    /// Cleans up the number for display...
-    /// Strips nonnumeric characters, converts it to a double, and formats it based on the following rules:
-    /// Length = 0 - Return value parameter
-    /// Length = 7 - XXX-XXXX
-    /// Length = 10 - (XXX) XXX-XXXX parens = true
-    /// Length = 10 - XXX-XXX-XXXX parens = false
-    /// Length > 10 - +XXXXXXXXXXXXX
-    /// </summary>
-    public static string GetDisplayPhoneNumber(string value, bool parens = true)
-    {
-      try
-      {
+		/// <summary>
+		/// Cleans up the number for display...
+		/// Strips nonnumeric characters, converts it to a double, and formats it based on the following rules:
+		/// Length = 0 - Return whenInvalid value
+		/// Length = 7 - XXX-XXXX
+		/// Length = 10 - (XXX) XXX-XXXX parens = true
+		/// Length = 10 - XXX-XXX-XXXX parens = false
+		/// Length > 10 - +XXXXXXXXXXXXX
+		/// </summary>
+		public static string GetDisplayPhoneNumber(string value, bool parens = true, bool replaceInvalid = false, string whenInvalid = "")
+		{
+			if (!replaceInvalid) { whenInvalid = value; }
+
+			try
+			{
+        if(String.IsNullOrEmpty(value)) {return whenInvalid; }
+
         string clean = StringHelper.StripNonNumeric(value);
 
-        double number = 0;
-        if (!double.TryParse(clean, out number)) { return value; }
+				//International
+				if (clean.StartsWith("011") && clean.Length > 9) { return clean; }
+				if (clean.StartsWith("011") && clean.Length <= 9) { return whenInvalid; }
 
-        if (clean.Length == 0)
-          return value;
-        else if (clean.Length == 7)
-          return String.Format("{0:###-####}", number);
-        else if (clean.Length == 10 && parens)
-          return String.Format("{0:(###) ###-####}", number);
-        else if (clean.Length == 10 && !parens)
-          return String.Format("{0:###-###-####}", number);
-        else if (clean.Length > 10)
-          return String.Concat("+", number.ToString());
-        else
-          return value;
-      }
-      catch (Exception ex)
-      {
-        return value;
-      }
-    }
+				//Rest of this is domestic
+				clean = StringHelper.StripLeading1(clean);
+
+				double number;
+				double.TryParse(clean, out number);
+
+				if (clean.Length < 7) { return whenInvalid; }
+				else if (clean.Length == 7) { return String.Format("{0:###-####}", number); }
+				else if (clean.Length == 10 && parens) { return String.Format("{0:(###) ###-####}", number); }
+				else if (clean.Length == 10 && !parens) { return String.Format("{0:###-###-####}", number); }
+				else if (clean.Length > 10) { return String.Concat("+", number.ToString()); }
+				else return whenInvalid;
+			}
+			catch (Exception ex) { return whenInvalid; }
+		}
 
     //Private regex is cached for compile only once! - Initialized only when needed.
     private static System.Text.RegularExpressions.Regex ipRegex = null;
@@ -615,5 +653,13 @@ namespace WF.SDK.Common
       }
       return ret;
     }
+
+		public static bool IsValidEmail(string email)
+		{
+			var test = email.ToLower();
+			try { var addr = new System.Net.Mail.MailAddress(test); return addr.Address == test; }
+			catch { return false; }
+		}
+		
   }
 }

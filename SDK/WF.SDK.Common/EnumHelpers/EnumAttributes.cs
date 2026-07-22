@@ -11,8 +11,8 @@ namespace WF.SDK.Common
 		public string DisplayName = "";
 		public string DisplayDesc = "";
 		public string Tag = "";
-    public Type LinkType = null;
-    public int LinkVal = 0;
+		public Type LinkType = null;
+		public int LinkVal = 0;
 
 		public DisplayNameAttribute()
 		{
@@ -36,15 +36,14 @@ namespace WF.SDK.Common
 			this.Tag = Tag;
 		}
 
-    public DisplayNameAttribute(string DisplayName, string DisplayDesc, string Tag, Type LinkType, int LinkVal)
-    {
-      this.DisplayName = DisplayName;
-      this.DisplayDesc = DisplayDesc;
-      this.Tag = Tag;
-      this.LinkType = LinkType;
-      this.LinkVal = LinkVal;
-    }
+		public DisplayNameAttribute(string DisplayName, string DisplayDesc, string Tag, Type LinkType, int LinkVal)
+		{
+			this.DisplayName = DisplayName;
+			this.DisplayDesc = DisplayDesc;
+			this.Tag = Tag;
+			this.LinkType = LinkType;
+			this.LinkVal = LinkVal;
+		}
 
 	}
-
 }

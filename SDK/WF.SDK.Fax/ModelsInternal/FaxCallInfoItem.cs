@@ -17,6 +17,7 @@ namespace WF.SDK.Models.Internal
     public string TermCSID { get; set; }
     public string OrigCSID { get; set; }
     public string Result { get; set; }
+		public int FilterFlag { get; set; }
 
     public FaxCallInfoItem()
     { }

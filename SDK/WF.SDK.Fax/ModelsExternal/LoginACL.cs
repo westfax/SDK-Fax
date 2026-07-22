@@ -7,8 +7,14 @@ namespace WF.SDK.Models
 {
 
   [Serializable]
-  public class LoginACL
+  public class LoginACL : IId
   {
+
+    /// <summary>
+    ///  Interface Implementation - same as SrcAclId.  Guid Empty means no real ACL Id is present.  It is inherited.
+    /// </summary>
+    public Guid Id { get { return this.SrcAclId.GetValueOrDefault(Guid.Empty); } set { this.SrcAclId = value; } }
+
     public Guid? LoginId;
     public Guid? SrcAclId;
     public bool Inherited;
@@ -53,6 +59,13 @@ namespace WF.SDK.Models
     {
       if (obj == null) { return null; }
       return new LoginACL(obj);
+    }
+
+    public static LoginACL Clone(this LoginACL obj)
+    {
+      if (obj == null) { return null; }
+      var ret = (obj.ToLoginACLItem()).ToLoginACL();
+      return ret;
     }
   }
 }

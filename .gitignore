@@ -1,0 +1,22 @@
+.DS_Store
+
+# Ignore build output
+**/[Bb]in/
+**/[Oo]bj/
+
+# Ignore local binary copy directories
+binaries/
+
+# Ignore NuGet package folders
+**/packages/
+packages/
+
+# Visual Studio user and workspace files
+*.user
+*.suo
+*.userosscache
+.vs/
+
+# Ignore Terraform tfstate files if present
+*.tfstate
+*.tfstate.backup

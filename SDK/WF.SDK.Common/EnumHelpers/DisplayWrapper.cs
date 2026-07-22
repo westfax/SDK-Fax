@@ -6,33 +6,38 @@ namespace WF.SDK.Common
 {
   public class DisplayWrapper<T> where T : struct, System.IConvertible
   {
+
+    #region GetDisplayNameAttribute
+    public static DisplayNameAttribute GetDisplayNameAttribute(T value)
+    {
+      try
+      {
+        DisplayNameAttribute ret = null;
+        System.Reflection.MemberInfo[] memberInfos = typeof(T).GetMember(value.ToString());
+        if (memberInfos.Length > 0)
+        {
+          ret = (DisplayNameAttribute)Attribute.GetCustomAttribute(memberInfos[0], typeof(DisplayNameAttribute));
+        }
+        return ret;
+      }
+      catch { return null; }
+    }
+    #endregion
+
     #region GetDisplayName
     public static string GetDisplayName(T enumValue)
     {
-
-        System.Reflection.MemberInfo[] memberInfos = typeof(T).GetMember(enumValue.ToString());
-        if (memberInfos.Length > 0)
-        {
-          DisplayNameAttribute att =
-            (DisplayNameAttribute)Attribute.GetCustomAttribute(memberInfos[0], typeof(DisplayNameAttribute));
-          if (att != null) { return att.DisplayName; }
-        }
-        return (enumValue.ToString().Replace("_", " ")).Trim();
-    
-
+      DisplayNameAttribute att = DisplayWrapper<T>.GetDisplayNameAttribute(enumValue);
+      if (att != null) { return att.DisplayName; }
+      return (enumValue.ToString().Replace("_", " ")).Trim();
     }
     #endregion
 
     #region GetDisplayDesc
     public static string GetDisplayDesc(T enumValue)
     {
-      System.Reflection.MemberInfo[] memberInfos = typeof(T).GetMember(enumValue.ToString());
-      if (memberInfos.Length > 0)
-      {
-        DisplayNameAttribute att =
-          (DisplayNameAttribute)Attribute.GetCustomAttribute(memberInfos[0], typeof(DisplayNameAttribute));
-        if (att != null) { return att.DisplayDesc; }
-      }
+      DisplayNameAttribute att = DisplayWrapper<T>.GetDisplayNameAttribute(enumValue);
+      if (att != null) { return att.DisplayDesc; }
       return (enumValue.ToString().Replace("_", " ")).Trim();
     }
     #endregion
@@ -40,14 +45,18 @@ namespace WF.SDK.Common
     #region GetTag
     public static string GetTag(T enumValue)
     {
-      System.Reflection.MemberInfo[] memberInfos = typeof(T).GetMember(enumValue.ToString());
-      if (memberInfos.Length > 0)
-      {
-        DisplayNameAttribute att =
-          (DisplayNameAttribute)Attribute.GetCustomAttribute(memberInfos[0], typeof(DisplayNameAttribute));
-        if (att != null) { return att.Tag; }
-      }
+      DisplayNameAttribute att = DisplayWrapper<T>.GetDisplayNameAttribute(enumValue);
+      if (att != null) { return att.Tag; }
       return (enumValue.ToString().Replace("_", " ")).Trim();
+    }
+    #endregion
+
+    #region GetLink
+    public static int GetLink(T enumValue)
+    {
+      DisplayNameAttribute att = DisplayWrapper<T>.GetDisplayNameAttribute(enumValue);
+      if (att != null) { return att.LinkVal; }
+      return 0;
     }
     #endregion
 
@@ -183,6 +192,18 @@ namespace WF.SDK.Common
     }
     #endregion
 
+    #region GetAttributeDictionary
+    public static Dictionary<T, DisplayNameAttribute> GetAttributeDictionary()
+    {
+      Dictionary<T, DisplayNameAttribute> ret = new Dictionary<T, DisplayNameAttribute>();
+      foreach (T val in Enum.GetValues(typeof(T)))
+      {
+        ret.Add(val, DisplayWrapper<T>.GetDisplayNameAttribute(val));
+      }
+      return ret;
+    }
+    #endregion
+
     #region GetDisplayDescDictionary
     public static Dictionary<T, string> GetDisplayDescDictionary()
     {
@@ -207,13 +228,25 @@ namespace WF.SDK.Common
     }
     #endregion
 
-    #region DisplayNameToEnumValue
-    public static T ToEnumValue(string enumDisplayName)
+    #region GetLinkDictionary
+    public static Dictionary<T, int> GetLinkDictionary()
     {
-      return DisplayWrapper<T>.DisplayNameToEnumValue(enumDisplayName);
+      Dictionary<T, int> ret = new Dictionary<T, int>();
+      foreach (T val in Enum.GetValues(typeof(T)))
+      {
+        ret.Add(val, DisplayWrapper<T>.GetLink(val));
+      }
+      return ret;
+    }
+    #endregion
+
+    #region DisplayNameToEnumValue
+    public static T ToEnumValue(string enumDisplayName, bool caseSensitive = true)
+    {
+      return DisplayWrapper<T>.DisplayNameToEnumValue(enumDisplayName, caseSensitive);
     }
 
-    public static T DisplayNameToEnumValue(string enumDisplayName)
+    public static T DisplayNameToEnumValue(string enumDisplayName, bool caseSensitive = true)
     {
       string[] enumValues = Enum.GetNames(typeof(T));
       foreach (string s in enumValues)
@@ -222,8 +255,16 @@ namespace WF.SDK.Common
         if (memberInfos.Length > 0)
         {
           DisplayNameAttribute att = (DisplayNameAttribute)Attribute.GetCustomAttribute(memberInfos[0], typeof(DisplayNameAttribute));
-          if (att != null && att.DisplayName == enumDisplayName) { return (T)Enum.Parse(typeof(T), s); }
-          if (att == null && enumDisplayName == s.Replace("_", " ").Trim()) { return (T)Enum.Parse(typeof(T), s); }
+          if (caseSensitive)
+          {
+            if (att != null && att.DisplayName == enumDisplayName) { return (T)Enum.Parse(typeof(T), s); }
+            if (att == null && enumDisplayName == s.Replace("_", " ").Trim()) { return (T)Enum.Parse(typeof(T), s); }
+          }
+          else
+          {
+            if (att != null && att.DisplayName.ToLower() == enumDisplayName.ToLower()) { return (T)Enum.Parse(typeof(T), s); }
+            if (att == null && enumDisplayName.ToLower() == s.ToLower().Replace("_", " ").Trim()) { return (T)Enum.Parse(typeof(T), s); }
+          }
         }
       }
       return default(T);
@@ -259,6 +300,23 @@ namespace WF.SDK.Common
           DisplayNameAttribute att = (DisplayNameAttribute)Attribute.GetCustomAttribute(memberInfos[0], typeof(DisplayNameAttribute));
           if (att != null && att.Tag == enumTag) { return (T)Enum.Parse(typeof(T), s); }
           if (att == null && enumTag == s.Replace("_", " ").Trim()) { return (T)Enum.Parse(typeof(T), s); }
+        }
+      }
+      return default(T);
+    }
+    #endregion
+
+    #region LinkToEnumValue
+    public static T TagToEnumValue(int linkVal)
+    {
+      string[] enumValues = Enum.GetNames(typeof(T));
+      foreach (string s in enumValues)
+      {
+        System.Reflection.MemberInfo[] memberInfos = typeof(T).GetMember(s.ToString());
+        if (memberInfos.Length > 0)
+        {
+          DisplayNameAttribute att = (DisplayNameAttribute)Attribute.GetCustomAttribute(memberInfos[0], typeof(DisplayNameAttribute));
+          if (att != null && att.LinkVal == linkVal) { return (T)Enum.Parse(typeof(T), s); }
         }
       }
       return default(T);

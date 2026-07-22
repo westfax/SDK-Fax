@@ -5,22 +5,11 @@ using System.Text;
 
 namespace WF.SDK.Models
 {
-  /// <summary>
-  /// This is the basic info for a fax.
-  /// A structure similar to this is used to communicate with the API to Identify a fax
-  /// and to get more info about it.  This works for both inbound and outbound faxes.
-  /// </summary>
-  public interface IFaxId
-  {
-    Guid Id { get; set; }
-    Direction Direction { get; set; }
-    DateTime DateUTC { get; set; }
-    string Tag { get; set; }
-  }
 
   /// <summary>
   /// Simple implementation for the IFaxId interface.  Used for querying the API
   /// </summary>
+	[Serializable]
   public class FaxId : IFaxId
   {
     public Guid Id { get; set; }
@@ -34,22 +23,12 @@ namespace WF.SDK.Models
   }
 
   /// <summary>
-  /// This is a cache control interface.
-  /// </summary>
-  public interface ICacheControl
-  {
-    HydrationFlag HydrationFlag { get; set; }
-    DateTime HydrationUTC { get; set; }
-    //Same as marking an item as final - It won't change.
-    bool RequiresTimeExpiration { get; set; }
-  }
-
-  /// <summary>
   /// This all the information for a fax.  From this we can contain any information needed.
   /// This class is emitted by the PolkaDotApiInterface.  It may be partially or fully populated
   /// based on the method that was called to hydrate it.  At minimum, the IFaxId properties will
   /// be filled, and it is returned from the PolkaDotApiInterface as an IFaxId.
   /// </summary>
+	[Serializable]
   public class FaxDesc : IFaxId , ICacheControl
   {
     //Cache Control properties - these do not go to the client.
@@ -66,17 +45,26 @@ namespace WF.SDK.Models
     public DateTime DateUTC { get; set; }
     public string Tag { get; set; }
 
-    public int PageCount { get; set; }
+		public Guid LoginId { get; set; }
+		public string LoginName { get; set; }
+		public int PageCount { get; set; }
+		public int DocPageCount { get; set; }
+		public string CreatedVia { get; set; }
     public FaxQuality FaxQuality { get; set; }
     public FaxStatus FaxStatus { get; set; }
 
     public string Reference { get; set; }
     public string JobName { get; set; }
+		public string CreatedBy { get; set; }
+
+        public Guid FolderId { get; set; }
+        public bool FilesAvailable { get; set; }
 
     public List<FaxCallInfo> FaxCallInfoList { get; set; }
     public List<FaxFileInfo> FaxFileList { get; set; }
 
     public bool IsUnRead { get { return this.Tag.ToLower() == "none"; } }
+    public bool IsDeleted { get { return this.Tag.ToLower() == "removed"; } }
 
     public FaxDesc()
     {
@@ -84,9 +72,9 @@ namespace WF.SDK.Models
       this.FaxCallInfoList = new List<FaxCallInfo>();
       this.FaxFileList = new List<FaxFileInfo>();
     }
-    
 
-    internal FaxDesc(Internal.FaxIdItem item)
+
+		public FaxDesc(Internal.FaxIdItem item)
       : this()
     {
       this.Id = item.Id;
@@ -100,7 +88,7 @@ namespace WF.SDK.Models
       this.RequiresTimeExpiration = true;
     }
 
-    internal FaxDesc(Internal.FaxFileItem item)
+		public FaxDesc(Internal.FaxFileItem item)
       : this()
     {
       this.Id = item.Id;
@@ -108,9 +96,10 @@ namespace WF.SDK.Models
       this.DateUTC = item.Date;
       this.Tag = item.Tag;
       var ff = new FaxFileInfo();
-      ff.FileFormat = (FileFormat)Enum.Parse(typeof(FileFormat), item.Format, true);
+      if(item.Format != null) { ff.FileFormat = (FileFormat)Enum.Parse(typeof(FileFormat), item.Format, true); }
       ff.FaxFiles = item.FaxFiles.Select(i => new FileDetail(i)).ToList();
       this.FaxFileList.Add(ff);
+
       //Cache Control
       if (ff.FileFormat == FileFormat.Pdf) { this.HydrationFlag = HydrationFlag.Id_FilePdf; }
       if (ff.FileFormat == FileFormat.Tiff) { this.HydrationFlag = HydrationFlag.Id_FileTif; }
@@ -118,7 +107,7 @@ namespace WF.SDK.Models
       this.RequiresTimeExpiration = true;
     }
 
-    internal FaxDesc(Internal.FaxDescItem item)
+    public FaxDesc(Internal.FaxDescItem item)
       : this()
     {
       this.Id = item.Id;
@@ -128,8 +117,15 @@ namespace WF.SDK.Models
       this.FaxQuality = (FaxQuality)Enum.Parse(typeof(FaxQuality), item.FaxQuality, true);
       this.FaxStatus = (FaxStatus)Enum.Parse(typeof(FaxStatus), item.Status, true);
       this.JobName = item.JobName;
+			this.CreatedBy = item.CreatedBy;
+			this.DocPageCount = item.DocPageCount;
+			this.CreatedVia = item.CreatedVia;
+			this.LoginId = item.LoginId;
+			this.LoginName = string.IsNullOrEmpty(item.LoginName) ? "None" : item.LoginName;
       this.PageCount = item.PageCount;
       this.Reference = item.Reference;
+      this.FolderId = item.FolderId;
+      this.FilesAvailable = item.FilesAvailable;
       this.FaxCallInfoList = new List<FaxCallInfo>();
       item.FaxCallInfoList.ForEach(i =>
       {
@@ -137,38 +133,45 @@ namespace WF.SDK.Models
         inf.CallId = i.CallId;
 
         //Call result can fail parsing
-        try { inf.CallResult = (CallResult)Enum.Parse(typeof(CallResult), i.Result, true); }
-        catch
+        CallResult result;
+        if(Enum.TryParse<CallResult>(i.Result, out result)) { inf.CallResult = result; }
+        else
         {
           switch (i.Result.ToLower().Replace(" ", "").Trim())
           {
             case "inboundfaxreceived":
             case "sent": { inf.CallResult = CallResult.Success; break; }
-            case "waitingtodial": { inf.CallResult = CallResult.Dialing; break; }
+            case "waitingtodial": { inf.CallResult = CallResult.Sending; break; }
             case "noanswer":
             case "busy": { inf.CallResult = CallResult.NoAnswer; break; }
             case "invalidcsid":
+            case "invalidschedule":
             case "faxormodemdetected":
+            case "nofaxdevice":
             case "fileerror":
-            case "connectionfailure":
             case "documentconversionerror":
+            case "connectionfailure":
             case "connectioninterrupt": { inf.CallResult = CallResult.Failed; break; }
             case "areacodeblocked":
             case "tierblocked":
             case "duplicatenumber":
             case "duplicatenumbermax":
             case "blocked": { inf.CallResult = CallResult.Removed; break; }
+            case "removallist": { inf.CallResult = CallResult.Removed; break; }
             case "operatorintercept":
             case "invalidnumber": { inf.CallResult = CallResult.InvalidNumber; break; }
             case "cancelled": { inf.CallResult = CallResult.Cancelled; break; }
+            case "canceled": { inf.CallResult = CallResult.Cancelled; break; }
             default: { inf.CallResult = CallResult.Unknown; break; }
           }
         }
+        if (this.Direction == Direction.Outbound && DetailedCallResultExtensions.TryFrom(i.Result, out DetailedOutboundCallResult outboundCallResult)) { inf.OutboundCallResult = outboundCallResult; }
         inf.CompletedUTC = i.CompletedUTC;
         inf.TermCSID = i.TermCSID;
         inf.TermNumber = i.TermNumber;
         inf.OrigCSID = i.OrigCSID;
         inf.OrigNumber = i.OrigNumber;
+				inf.FilterFlag = (FilterFlag)i.FilterFlag;
         this.FaxCallInfoList.Add(inf);
       });
       //Cache Control
@@ -178,7 +181,7 @@ namespace WF.SDK.Models
       else { this.RequiresTimeExpiration = true; }
     }
 
-    internal Internal.FaxIdItem ToFaxIdItem()
+		public Internal.FaxIdItem ToFaxIdItem()
     {
       var ret = new Internal.FaxIdItem();
       ret.Id = this.Id;
@@ -192,7 +195,7 @@ namespace WF.SDK.Models
     /// Static conversion methods.  Just put them here instead of creating a new class.
     /// They are internal only.
     /// </summary>
-    internal static Internal.FaxIdItem ToFaxIdItem(IFaxId item)
+		public static Internal.FaxIdItem ToFaxIdItem(IFaxId item)
     {
       return new Internal.FaxIdItem() { Id = item.Id, Direction = item.Direction.ToString(), Date = item.DateUTC, Tag = item.Tag };
     }
@@ -201,29 +204,33 @@ namespace WF.SDK.Models
     /// Static conversion methods.  Just put them here instead of creating a new class.
     /// They are internal only.
     /// </summary>
-    internal static List<Internal.FaxIdItem> ToFaxIdItemList(List<IFaxId> items)
+    public static List<Internal.FaxIdItem> ToFaxIdItemList(List<IFaxId> items)
     {
       return items.Select(i => FaxDesc.ToFaxIdItem(i)).ToList();
     }
 
   }
 
+	[Serializable]
   public class FaxCallInfo
   {
     public Guid CallId { get; set; }
     public DateTime CompletedUTC { get; set; }
-    public string TermNumber { get; set; }
-    public string OrigNumber { get; set; }
-    public string TermCSID { get; set; }
-    public string OrigCSID { get; set; }
+    public string TermNumber { get; set; } = "";
+    public string OrigNumber { get; set; } = "";
+    public string TermCSID { get; set; } = "";
+    public string OrigCSID { get; set; } = "";
     public CallResult CallResult { get; set; }
+		public FilterFlag FilterFlag { get; set; }
+
+    public DetailedOutboundCallResult? OutboundCallResult { get; set; }
   }
 
   [Serializable]
   public class FaxFileInfo
   {
     public FileFormat FileFormat { get; set; }
-    public int PageCount { get; set; }
+    public int PageCount { get; set; } = 0;
     public List<FileDetail> FaxFiles { get; set; }
 
     public FaxFileInfo()
@@ -269,5 +276,40 @@ namespace WF.SDK.Models
     }
   }
 
+
+	public static class FileDetailExtensionMethods
+	{
+		public static Internal.FileItem ToFileItem(this FileDetail obj)
+		{
+			if (obj == null) { return null;}
+
+			Internal.FileItem ret = new Internal.FileItem();
+			ret.ContentDisposition = obj.ContentDisposition;
+			ret.ContentEncoding = obj.ContentEncoding;
+			ret.ContentLength = obj.ContentLength;
+			ret.ContentType = obj.ContentType;
+			ret.FileContents = obj.FileContents;
+			ret.Filename = obj.Filename;
+			ret.Url = obj.Url;
+			return ret;
+		}
+
+    public static FileDetail ToFileDetail(this Internal.FileItem obj)
+    {
+      return new FileDetail(obj);
+    }
+
+		public static List<Internal.FileItem> ToFileItems(this List<FileDetail> list)
+		{
+			if (list == null) { return null; }
+			return list.Select(i => i.ToFileItem()).Where(i => i != null).ToList();
+		}
+
+    public static List<FileDetail> ToFileDetails(this List<Internal.FileItem> list)
+    {
+      if (list == null) { return null; }
+      return list.Select(i => new FileDetail(i)).ToList();
+    }
+	}
 
 }

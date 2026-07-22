@@ -6,7 +6,7 @@ using System.Text;
 namespace WF.SDK.Models
 {
   [Serializable]
-  public class Contact
+  public class Contact : IId
   {
     public Guid Id { get; set; }
     public string Title {get; set;}
@@ -21,6 +21,7 @@ namespace WF.SDK.Models
 
     public ContactVisibility Type { get; set; }
     public Guid? OwnerId { get; set; }
+    public string OwnerDisplayName { get; set; }
 
     public Contact()
     { }
@@ -38,6 +39,7 @@ namespace WF.SDK.Models
       this.Title = item.Title;
       this.Type = (ContactVisibility)Enum.Parse(typeof(ContactVisibility), item.Type, true);
       this.OwnerId = item.OwnerId;
+      this.OwnerDisplayName = item.OwnerDisplayName;
     }
 
     
@@ -50,6 +52,16 @@ namespace WF.SDK.Models
       if (obj == null) { return ""; }
       return (obj.FirstName + " " + obj.LastName).Trim();
     }
+
+		public static string ToDisplayName(this Contact obj)
+		{
+			var ret = "";
+			ret = (string.IsNullOrEmpty(obj.FirstName) ? "" : obj.FirstName) + " " + (string.IsNullOrEmpty(obj.LastName) ? "" : obj.LastName);
+			ret = ret.Trim();
+			if (!string.IsNullOrEmpty(ret)) { return ret; }
+			ret = string.IsNullOrEmpty(obj.CompanyName) ? "" : obj.CompanyName;
+			return ret;
+		}
 
     public static Internal.ContactItem ToContactItem(this Contact obj)
     {

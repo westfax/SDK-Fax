@@ -49,7 +49,11 @@ namespace WF.SDK.Models
       this.Title = item.Title;
       this.Zip = item.Zip;
 
-      try { this.TimeZone = (WF.SDK.Common.TimeZoneName)Enum.Parse(typeof(WF.SDK.Common.TimeZoneName), item.TimeZone); }
+      try 
+      { 
+        if (item.TimeZone != null && Enum.TryParse(item.TimeZone, out WF.SDK.Common.TimeZoneName timeZoneName)) { this.TimeZone = timeZoneName; }
+        else { this.TimeZone = WF.SDK.Common.TimeZoneName.Eastern; }
+      }
       catch { this.TimeZone = WF.SDK.Common.TimeZoneName.Eastern; }
     }
 

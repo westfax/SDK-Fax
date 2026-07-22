@@ -10,31 +10,23 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>WF.SDK.Fax</RootNamespace>
     <AssemblyName>WF.SDK.Fax</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
-  <PropertyGroup>
-    <RunPostBuildEvent>Always</RunPostBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <CodeAnalysisLogFile>bin\Debug\WF.SDK.Fax.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
-    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
-    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
-    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\binaries\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Web" />
@@ -42,10 +34,21 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <ProjectReference Include="..\WF.SDK.Common\WF.SDK.Common.csproj">
+      <Project>{16657951-A080-4251-A196-A62120B25EE7}</Project>
+      <Name>WF.SDK.Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers\wwHttpApiHelper.cs" />
+    <Compile Include="ModelsExternal\Interfaces.cs" />
     <Compile Include="ModelsExternal\Contact.cs" />
     <Compile Include="ModelsExternal\Address.cs" />
+    <Compile Include="ModelsExternal\Folder.cs" />
+    <Compile Include="ModelsExternal\FaxCoverPage.cs" />
+    <Compile Include="ModelsExternal\FeedbackEmail.cs" />
+    <Compile Include="ModelsExternal\IdentityProviderInformation.cs" />
+    <Compile Include="ModelsExternal\Plan.cs" />
     <Compile Include="ModelsExternal\Enums.cs" />
     <Compile Include="ModelsExternal\User.cs" />
     <Compile Include="ModelsExternal\AccountInfo.cs" />
@@ -58,13 +61,18 @@
     <Compile Include="ModelsInternal\ContactItem.cs" />
     <Compile Include="ModelsInternal\AccountItem.cs" />
     <Compile Include="ModelsInternal\AddressItem.cs" />
+    <Compile Include="ModelsExternal\Page.cs" />
+    <Compile Include="ModelsExternal\SendFaxExtraParams.cs" />
+    <Compile Include="ModelsInternal\FolderItem.cs" />
+    <Compile Include="ModelsInternal\FaxCoverPageItem.cs" />
+    <Compile Include="ModelsInternal\FeedbackEmailItem.cs" />
+    <Compile Include="ModelsInternal\PlanItem.cs" />
     <Compile Include="ModelsInternal\JobCallStatusItem.cs" />
     <Compile Include="ModelsInternal\JobStatusItem.cs" />
     <Compile Include="ModelsInternal\FaxCallInfoItem.cs" />
     <Compile Include="ModelsInternal\FaxFileItem.cs" />
     <Compile Include="ModelsInternal\FileItem.cs" />
-    <Compile Include="ModelsInternal\GenericItem.cs" />
-    <Compile Include="ModelsInternal\F2EProductItem.cs" />
+    <Compile Include="ModelsInternal\ContainerItem.cs" />
     <Compile Include="ModelsInternal\LoginACLItem.cs" />
     <Compile Include="ModelsInternal\LoginInfoItem.cs" />
     <Compile Include="ModelsInternal\NameValueItem.cs" />
@@ -74,21 +82,9 @@
     <Compile Include="ModelsInternal\ProductItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\WF.SDK.Common\WF.SDK.Common.csproj">
-      <Project>{16657951-A080-4251-A196-A62120B25EE7}</Project>
-      <Name>WF.SDK.Common</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>
-    </PreBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
-  </PropertyGroup>
+    </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

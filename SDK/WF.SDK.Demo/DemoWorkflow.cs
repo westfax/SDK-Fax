@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Data;
 
-using NUnit.Framework;
 
 using WF.SDK.Fax;
 using WF.SDK.Models;
@@ -19,6 +18,11 @@ namespace WF.SDK.Fax.Demo
 
     public DemoWorkflow()
     {
+    }
+
+    private static void Ensure(bool condition, string message = null)
+    {
+      if (!condition) throw new InvalidOperationException(message ?? "Assertion failed.");
     }
 
     
@@ -37,27 +41,27 @@ namespace WF.SDK.Fax.Demo
       {
         //Ping - See if API is alive.
         var ret1 = FaxInterface.Ping("Ping!");
-        Assert.IsTrue(ret1.Success);
-        Assert.IsTrue(ret1.Result.Contains("Ping!"));
+        Ensure(ret1.Success);
+        Ensure(ret1.Result.Contains("Ping!"));
       }
 
       {
         //Authenticate basic
         var ret1 = FaxInterface.Authenticate(ConfigInfo.User, ConfigInfo.Pass);
-        Assert.IsTrue(ret1.Success);
+        Ensure(ret1.Success);
       }
 
       {
         //Authenticate with product - Product Id is optional on this method, but is required on many other methods.
         //You can use the product Id here to validate that you can connect to the product that you want to.
         var ret1 = FaxInterface.Authenticate(ConfigInfo.User, ConfigInfo.Pass, ConfigInfo.ProductId);
-        Assert.IsTrue(ret1.Success);
+        Ensure(ret1.Success);
       }
 
       {
         //Authenticate with product - This one will fail.  BadProductId.
         var ret1 = FaxInterface.Authenticate(ConfigInfo.User, ConfigInfo.Pass, Guid.NewGuid());
-        Assert.IsFalse(ret1.Success);
+        Ensure(!(ret1.Success));
       }
     }
 
@@ -68,7 +72,7 @@ namespace WF.SDK.Fax.Demo
       {
         //Display the Account Info
         var ret1 = FaxInterface.GetAccountInfo(ConfigInfo.User, ConfigInfo.Pass);
-        Assert.IsTrue(ret1.Success);
+        Ensure(ret1.Success);
         var result1 = ret1.Result;
         Console.WriteLine("---------Showing Account Information for this user---------");
         Console.WriteLine("AccountName: " + result1.AccountName + " AcctNumber: " + result1.AccountNumber + " State: " + result1.AccountState.ToString());
@@ -77,7 +81,7 @@ namespace WF.SDK.Fax.Demo
       {
         //Display all the Products avialable to this login.
         var ret1 = FaxInterface.GetProductList(ConfigInfo.User, ConfigInfo.Pass);
-        Assert.IsTrue(ret1.Success);
+        Ensure(ret1.Success);
         var result1 = ret1.Result;
         Console.WriteLine("---------Showing Product Information for this user---------");
         foreach (var prod in result1)
@@ -89,7 +93,7 @@ namespace WF.SDK.Fax.Demo
       {
         //Display all the fax to Email products avialable to this login.
         var ret1 = FaxInterface.GetF2EProductList(ConfigInfo.User, ConfigInfo.Pass);
-        Assert.IsTrue(ret1.Success);
+        Ensure(ret1.Success);
         var result1 = ret1.Result;
         Console.WriteLine("---------Showing Fax To Email Product Information for this user---------");
         foreach (var prod in result1)
@@ -106,7 +110,7 @@ namespace WF.SDK.Fax.Demo
         {
           prodId = temp[0].Id;        //Discover an Id.
           var ret1 = FaxInterface.GetF2EProductDetail(ConfigInfo.User, ConfigInfo.Pass, prodId);  //Now query it
-          Assert.IsTrue(ret1.Success);
+          Ensure(ret1.Success);
           var result1 = ret1.Result;
           Console.WriteLine("---------Showing Detail Fax To Email Product Information---------");
           Console.WriteLine("ProductName: " + result1.Name + " ProdType: " + result1.ProductType + " State: " + result1.ProductState.ToString() + " Id: " + result1.Id);
@@ -117,7 +121,7 @@ namespace WF.SDK.Fax.Demo
       {
         //Get Some Info About me (the user)
         var ret1 = FaxInterface.GetUserProfile(ConfigInfo.User, ConfigInfo.Pass);  //Get my info
-         Assert.IsTrue(ret1.Success);
+         Ensure(ret1.Success);
         var result1 = ret1.Result;
         Console.WriteLine("---------Showing User Profile Detail---------");
         Console.WriteLine("FirstName: " + result1.FirstName + " FirstName: " + result1.LastName + " Fax: " + result1.Fax + " Email: " + result1.Email);
@@ -126,7 +130,7 @@ namespace WF.SDK.Fax.Demo
       {
         //Get Some Info About me (the user) - enhanced.  Has login and ACL permissions.
         var ret1 = FaxInterface.GetLoginInfo(ConfigInfo.User, ConfigInfo.Pass);  //Get my info
-        Assert.IsTrue(ret1.Success);
+        Ensure(ret1.Success);
         var result1 = ret1.Result;
         Console.WriteLine("---------Showing User Profile Detail---------");
         Console.WriteLine("FirstName: " + result1.Contact.FirstName + " FirstName: " + result1.Contact.LastName + " Fax: " + result1.Contact.Fax + " Email: " + result1.Contact.Email);
@@ -141,7 +145,7 @@ namespace WF.SDK.Fax.Demo
       {
         //Users can sent a fax to a stored Contact.  Get that list here.  This list can be product qualified.
         var ret1 = FaxInterface.GetContactList(ConfigInfo.User, ConfigInfo.Pass);  //Get the contacts I can see.
-        Assert.IsTrue(ret1.Success);
+        Ensure(ret1.Success);
         var result1 = ret1.Result;
         Console.WriteLine("---------Showing Contacts---------");
         foreach (var contact in result1)
@@ -154,7 +158,7 @@ namespace WF.SDK.Fax.Demo
       {
         //Show details of the selected product
         var ret1 = FaxInterface.GetProductList(ConfigInfo.User, ConfigInfo.Pass);  //Get the products I can see.
-        Assert.IsTrue(ret1.Success);
+        Ensure(ret1.Success);
         var product = ret1.Result.FirstOrDefault(i => i.Id == ConfigInfo.ProductId);
         Console.WriteLine("---------Showing Selected Product---------");
         Console.WriteLine("ProductName: " + product.Name + " ProdType: " + product.ProductType + " State: " + product.ProductState.ToString() + " Id: " + product.Id);       
@@ -185,7 +189,7 @@ namespace WF.SDK.Fax.Demo
           file, "Faxing Demo", "777-777-7000", DateTime.Now, "Fine", "Demo Job", "Demo Header",
           "Demo Billing Code", ConfigInfo.Email);
 
-        Assert.IsTrue(ret1.Success);
+        Ensure(ret1.Success);
         var result1 = ret1.Result;
         JobId = new Guid(result1);  //Save the Id.
       }
@@ -219,8 +223,8 @@ namespace WF.SDK.Fax.Demo
       var fax = new FaxId(jobId);
       var ret1 = FaxInterface.GetFaxDescriptions(ConfigInfo.User, ConfigInfo.Pass, ConfigInfo.ProductId,
         new List<IFaxId>() { fax });
-      Assert.IsTrue(ret1.Success);
-      Assert.IsTrue(ret1.Result.Count == 1);  //Just one
+      Ensure(ret1.Success);
+      Ensure(ret1.Result.Count == 1);  //Just one
       return (FaxDesc)ret1.Result[0];  //We asked for 1 result, return it.
     }
 
@@ -235,7 +239,7 @@ namespace WF.SDK.Fax.Demo
       Console.WriteLine("Retreive a fax document from the API, see its properties and display it.  Need to have an inbound fax in your account for this to work.");
 
       //Get Inbound Faxes
-      var ret1 = FaxInterface.GetInboundFaxIds(ConfigInfo.User, ConfigInfo.Pass, ConfigInfo.ProductId);
+      var ret1 = FaxInterface.GetInboundFaxIds(ConfigInfo.User, ConfigInfo.Pass, ConfigInfo.ProductId, false);
       //Check if we got any.
       if (ret1.Result.Count == 0)
       {
@@ -266,9 +270,9 @@ namespace WF.SDK.Fax.Demo
       Console.WriteLine("Retrieving and showing the docuement as a PDF.");
       //Now retrieve the document as a pdf and show it. Other formats are supported here.
       var ret3 = FaxInterface.GetFaxDocuments(ConfigInfo.User, ConfigInfo.Pass, ConfigInfo.ProductId, new List<IFaxId>() { fax }, FileFormat.Pdf);
-      Assert.IsTrue(ret3.Success);
-      Assert.IsTrue(ret3.Result.Count == 1);
-      Assert.IsTrue(((FaxDesc)ret3.Result[0]).FaxFileList.Count > 0);
+      Ensure(ret3.Success);
+      Ensure(ret3.Result.Count == 1);
+      Ensure(((FaxDesc)ret3.Result[0]).FaxFileList.Count > 0);
       //Show the file
       foreach (var item in ret3.Result)
       {
@@ -280,26 +284,36 @@ namespace WF.SDK.Fax.Demo
       
       //Now delete this one.
       var ret4 = FaxInterface.MarkAsDeleted(ConfigInfo.User, ConfigInfo.Pass, ConfigInfo.ProductId, new List<IFaxId>() { fax });
-      Assert.IsTrue(ret4.Result);  //It should work.
+      Ensure(ret4.Result);  //It should work.
      
       //Now retrieve the faxes again.  The one we just got will be missing.
-      ret1 = FaxInterface.GetInboundFaxIds(ConfigInfo.User, ConfigInfo.Pass, ConfigInfo.ProductId);
+      ret1 = FaxInterface.GetInboundFaxIds(ConfigInfo.User, ConfigInfo.Pass, ConfigInfo.ProductId, false);
       //The one we just deleted will be gone!  Can't find it in the resulting collection.
-      Assert.IsTrue(ret1.Result.FirstOrDefault(i => i.Id == fax.Id) == null);
+      Ensure(ret1.Result.FirstOrDefault(i => i.Id == fax.Id) == null);
 
       //Now mark it as read.
       ret4 = FaxInterface.MarkAsRead(ConfigInfo.User, ConfigInfo.Pass, ConfigInfo.ProductId, new List<IFaxId>() { fax });
-      Assert.IsTrue(ret4.Result);  //It should work.
+      Ensure(ret4.Result);  //It should work.
 
       //Now retrieve the faxes again.  This one will come back!  It is not really deleted.
-      ret1 = FaxInterface.GetInboundFaxIds(ConfigInfo.User, ConfigInfo.Pass, ConfigInfo.ProductId);
+      ret1 = FaxInterface.GetInboundFaxIds(ConfigInfo.User, ConfigInfo.Pass, ConfigInfo.ProductId, false);
       //The one we just deleted will be back!
-      Assert.IsTrue(ret1.Result.FirstOrDefault(i => i.Id == fax.Id) != null);
+      Ensure(ret1.Result.FirstOrDefault(i => i.Id == fax.Id) != null);
       //Also it will be marked as Read (or "Retrieved") meaning that it has been retrieved from the server.
-      Assert.IsTrue(ret1.Result[0].Tag == "Retrieved");
+      Ensure(ret1.Result[0].Tag == "Retrieved");
     }
 
-    
+
+    /// <summary>
+    /// This method will retrieve a list of products that have undownloaded (un-read) faxes.
+    /// The products can then be searched for the un-read faxes.
+    /// </summary>
+    public void GetProductsWithInboundFaxes()
+    {
+      //Fax Forward Product List that have undownloaded faxes
+      var ret1 = FaxInterface.GetProductsWithInboundFaxes(ConfigInfo.User, ConfigInfo.Pass);
+      Ensure(ret1.Success);
+    }
 
   }
 }

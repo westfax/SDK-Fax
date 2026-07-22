@@ -8,7 +8,7 @@ using WF.SDK.Common;
 namespace WF.SDK.Models
 {
   [Serializable]
-  public class Product : ICacheControl
+  public class Product : ICacheControl, IId
   {
     //Cache Control properties - these do not go to the client.
     [Newtonsoft.Json.JsonIgnore]
@@ -22,6 +22,7 @@ namespace WF.SDK.Models
     public Guid Id { get; set; }
     public String Name { get; set; }
     public String Detail { get; set; }
+		public Guid PlanId { get; set; }
 
     public ProductType ProductType { get; set; }
 
@@ -42,6 +43,10 @@ namespace WF.SDK.Models
     public int QuantityInbound;
     public int QuantityOutbound;
 
+    public bool ShowDeletedItemsFolder { get; set; }
+
+    public Guid DefaultCoverPageId { get; set; }
+
     public Product()
     {
       this.HydrationUTC = DateTime.MinValue;
@@ -57,10 +62,11 @@ namespace WF.SDK.Models
     }
 
     public Product(Internal.F2EProductItem item)
-      : this()
+			: this((Internal.ProductItem)item)
     {
       this.Id = item.Id;
       this.Name = item.Name;
+			this.PlanId = item.PlanId;
       //Workaround for legacy product name.
       this.ProductType = EnumExtensionMethods.ConvertToSdkProdType(item.ProductType);
       //Convert Enums
@@ -75,12 +81,16 @@ namespace WF.SDK.Models
       this.QuantityInbound = item.QuantityInbound;
       this.QuantityOutbound = item.QuantityOutbound;
       this.FreeTrialEnd = item.FreeTrialEnd;
+      this.ShowDeletedItemsFolder = item.ShowDeletedItemsFolder;
+
+      this.DefaultCoverPageId = item.DefaultCoverPageId;
     }
 
-    internal Product(Internal.ProductItem item) : this()
+    public Product(Internal.ProductItem item) : this()
     {
       this.Id = item.Id;
       this.Name = item.Name;
+			this.PlanId = item.PlanId;
       //Workaround for legacy product name.
       this.ProductType = EnumExtensionMethods.ConvertToSdkProdType(item.ProductType);
 
@@ -92,6 +102,9 @@ namespace WF.SDK.Models
       this.OutboundANI = item.OutboundANI;
 
       this.FaxHeader = item.FaxHeader;
+      this.DefaultCoverPageId = item.DefaultCoverPageId;
+
+      this.ShowDeletedItemsFolder = false;
 
       try { this.ProductState = (ProductState)Enum.Parse(typeof(ProductState), item.ProductState); }
       catch { this.ProductState = ProductState.OK; }
@@ -134,6 +147,7 @@ namespace WF.SDK.Models
 
       var ret = new Internal.ProductItem();
       ret.Id = obj.Id;
+			ret.PlanId = obj.PlanId;
       ret.Detail = obj.Detail;
       ret.FaxHeader = obj.FaxHeader;
       ret.InboundCSID = obj.InboundCSID;
@@ -144,6 +158,7 @@ namespace WF.SDK.Models
       ret.ProductState = obj.ProductState.ToString();
       ret.ProductType = obj.ProductType.ConvertToPolkaProdString();
       ret.TimeZone = obj.TimeZone.ToString();
+      ret.ShowDeletedItemsFolder = obj.ShowDeletedItemsFolder;
 
       return ret;
     }

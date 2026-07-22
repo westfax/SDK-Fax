@@ -22,6 +22,7 @@ namespace WF.SDK.Models.Internal
 
     public string Type;
     public Guid? OwnerId;
+    public string OwnerDisplayName;
 
     public ContactItem()
     { }

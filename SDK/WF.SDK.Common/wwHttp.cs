@@ -163,7 +163,7 @@ namespace WF.SDK
 
     int nPostMode = 1;
 
-    int nConnectTimeout = 45;
+    int nConnectTimeout = 90;
     string cUserAgent = "West Fax HTTP .NET";
 
     string cUsername = "";
@@ -244,7 +244,7 @@ namespace WF.SDK
 
     public void AddPostKey(string Key, string Value)
     {
-      this.AddPostKey(Key, Encoding.GetEncoding(1252).GetBytes(Value));
+      this.AddPostKey(Key, Encoding.GetEncoding(1252).GetBytes(Value ?? ""));
     }
 
     /// <summary>
@@ -371,11 +371,10 @@ namespace WF.SDK
         if (Request == null)
         {
           Request = (HttpWebRequest)System.Net.WebRequest.Create(Url);
+          Request.AutomaticDecompression = DecompressionMethods.Deflate;
+          Request.UserAgent = this.cUserAgent;
+          Request.Timeout = this.nConnectTimeout * 1000;
         }
-
-        Request.AutomaticDecompression = DecompressionMethods.Deflate;
-        Request.UserAgent = this.cUserAgent;
-        Request.Timeout = this.nConnectTimeout * 1000;
 
         // *** Save for external access
         this.oWebRequest = Request;
@@ -528,8 +527,7 @@ namespace WF.SDK
         }
 
         // *** drag to a stream
-        StreamReader strResponse =
-          new StreamReader(Response.GetResponseStream(), enc);
+        StreamReader strResponse = new StreamReader(Response.GetResponseStream(), enc);
         return strResponse;
       }
       catch (Exception e)

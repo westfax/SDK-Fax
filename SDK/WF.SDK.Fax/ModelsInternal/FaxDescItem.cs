@@ -15,13 +15,20 @@ namespace WF.SDK.Models.Internal
     public string Direction { get; set; }  //Inbound or Outbound
     public string Tag { get; set; }
 
+		public Guid LoginId { get; set; }
+		public string LoginName { get; set; }
     public int PageCount { get; set; }
+		public int DocPageCount { get; set; }
+		public string CreatedVia { get; set; }
     public string FaxQuality { get; set; }
     public string Status { get; set; }    //Complete, in work, etc....
     public bool UnRead { get; set; }    //Whether it has been retrieved or not.
 
     public string Reference { get; set; }
     public string JobName { get; set; }
+		public string CreatedBy { get; set; }
+        public Guid FolderId { get; set; }
+        public bool FilesAvailable { get; set; }
 
     public List<FaxCallInfoItem> FaxCallInfoList = new List<FaxCallInfoItem>();
 

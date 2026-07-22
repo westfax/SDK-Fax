@@ -354,6 +354,33 @@ namespace WF.SDK.Common
       return ret;
     }
 
+    public static FileActionResultInfo DeleteOldFiles_Fast(string path, List<string> extensions, DateTime olderThan, bool pruneemptyFolders = true, bool recursive = true, int fileDeleteLimit = 0)
+    {
+      extensions = extensions.Select(i => i.ToLower()).ToList();
+      FileSystemEnumerator e = null;
+      if (recursive) { e = new FileSystemEnumerator(path, EnumertorType.Recursive_FilesAndFolders); }
+      else { e = new FileSystemEnumerator(path, EnumertorType.FilesAndFolders); }
+
+      var ret = new FileActionResultInfo();
+      foreach (FileSystemInfo info in e)
+      {
+        if (info is DirectoryInfo)
+        {
+          ret.CountFoldersSearched++;
+          if (pruneemptyFolders && FileHelper.IsDirectoryEmpty_Fast(info.FullName)) { info.Delete(); ret.CountFoldersDeleted++; }
+          else { ret.CountFoldersRemaining++; }
+        }
+        if (info is FileInfo)
+        {
+          ret.CountFilesSearched++;
+          if (info.LastWriteTime < olderThan && extensions.Contains(((FileInfo)info).Extension.ToLower())) { info.Delete(); ret.CountFilesDeleted++; }
+          else { ret.CountFilesRemaining++; }
+        }
+        if (fileDeleteLimit != 0 && ret.CountFilesDeleted >= fileDeleteLimit) { break; }
+      }
+      return ret;
+    }
+
     /// <summary>
     /// Searches a root path for folders matching the search criteria.  Wildcards are accepted.
     /// </summary>
