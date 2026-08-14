@@ -17,6 +17,7 @@ namespace WF.SDK.Fax.Demo
       foreach (var f in ((FaxDesc)item).FaxFileList)
       {
         var filename = Path.GetTempFileName();
+        // FileFormat is an enum (Pdf, Tiff, etc.), not a path. Do not apply path-traversal checks here.
         filename = filename + "." + f.FileFormat.ToString();
         File.WriteAllBytes(filename, f.FaxFiles[0].FileContents);
         ret.Add(filename);
@@ -60,6 +61,7 @@ namespace WF.SDK.Fax.Demo
     public static string WriteFile(Models.Internal.FileItem item, string format)
     {
       var filename = Path.GetTempFileName();
+      // format is a file extension (e.g. "pdf", "tif"), not a file path. Path-traversal checks do not apply.
       filename = filename + "." + format;
       File.WriteAllBytes(filename, item.FileContents);
       
@@ -69,6 +71,7 @@ namespace WF.SDK.Fax.Demo
     public static string WriteFile(Models.FileDetail item, string format)
     {
       var filename = Path.GetTempFileName();
+      // format is a file extension (e.g. "pdf", "tif"), not a file path. Path-traversal checks do not apply.
       filename = filename + "." + format;
       File.WriteAllBytes(filename, item.FileContents);
 

@@ -1645,6 +1645,11 @@ namespace WF.SDK.Fax.Internal
       int counter = 0;
       foreach (var file in filePaths)
       {
+        // Segment check (../, ..\), not Contains("..") which rejects names like "report..2024.pdf".
+        if (Common.FileHelper.IsInvalidFilePath(file))
+        {
+          return Common.JSONSerializerHelper.SerializeToString(new Models.ApiResult<string>(false, "Invalid file path", ""));
+        }
         if (!System.IO.File.Exists(file)) { return Common.JSONSerializerHelper.SerializeToString(new Models.ApiResult<string>(false, "File does not exist.", "")); }
         //Get the bytes from the file.
         var content = System.IO.File.ReadAllBytes(file);

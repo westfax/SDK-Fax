@@ -80,6 +80,33 @@ namespace WF.SDK.Common
       return filePath.StartsWith(@"\\");
     }
 
+    /// <summary>
+    /// True if <paramref name="path"/> is null or contains a path-traversal directory segment.
+    /// </summary>
+    /// <remarks>
+    /// Path traversal uses ".." as a directory segment with a separator ("../", "..\"),
+    /// or as the path ".." itself. Do not use path.Contains(".."): that rejects valid
+    /// filenames such as "report..2024.pdf" or "file..backup.txt".
+    /// </remarks>
+    public static bool IsInvalidFilePath(string path)
+    {
+      if (path == null)
+      {
+        return true;
+      }
+
+      // Only ".." as a path segment is traversal. "report..2024.pdf" is a valid filename.
+      // Do not replace this with path.Contains("..") — it is overly broad.
+      foreach (var segment in path.Split(new[] { '/', '\\' }))
+      {
+        if (segment == "..")
+        {
+          return true;
+        }
+      }
+      return false;
+    }
+
     public static string FormFileSystemSafeString(DateTime dtm)
     {
       return dtm.ToString("yyyy-MM-dd_HHmm");
@@ -128,6 +155,15 @@ namespace WF.SDK.Common
     /// <param name="dtm">The destination file date time.</param>
     public static string CopyAndFixDateTime(string source, string dest, DateTime dtm)
     {
+      // Segment check (../, ..\), not Contains("..") which rejects names like "report..2024.pdf".
+      if (FileHelper.IsInvalidFilePath(source))
+      {
+        throw new ArgumentException("Invalid file path");
+      }
+      if (FileHelper.IsInvalidFilePath(dest))
+      {
+        throw new ArgumentException("Invalid file path");
+      }
       if (!File.Exists(source)) { return ""; }
       if (!Directory.Exists(Path.GetDirectoryName(dest))) { Directory.CreateDirectory(Path.GetDirectoryName(dest)); }
       File.Copy(source, dest, true);
@@ -188,6 +224,11 @@ namespace WF.SDK.Common
     /// </summary>
     public static FileActionResultInfo DeleteOldFiles(string path, DateTime olderThan, bool recursive, bool populateList)
     {
+      // Segment check (../, ..\), not Contains("..") which rejects names like "report..2024.pdf".
+      if (FileHelper.IsInvalidFilePath(path))
+      {
+        throw new ArgumentException("Invalid file path");
+      }
       FileActionResultInfo ret = new FileActionResultInfo();
       FileActionResultInfo child = new FileActionResultInfo();
 
@@ -282,6 +323,11 @@ namespace WF.SDK.Common
     /// <returns>The number of deleted items. (Files + Directories)</returns>
     public static int DeleteOldFiles(string path, int ageHours, bool recursive)
     {
+      // Segment check (../, ..\), not Contains("..") which rejects names like "report..2024.pdf".
+      if (FileHelper.IsInvalidFilePath(path))
+      {
+        throw new ArgumentException("Invalid file path");
+      }
       int ret = 0;
       string[] dirs = new string[] { };
       string[] files = new string[] { };
@@ -450,6 +496,11 @@ namespace WF.SDK.Common
     /// <returns>String array of all files matching toFind.</returns>
     public static string[] FindFiles(string path, string toFind)
     {
+      // Segment check (../, ..\), not Contains("..") which rejects names like "report..2024.pdf".
+      if (FileHelper.IsInvalidFilePath(path))
+      {
+        throw new ArgumentException("Invalid file path");
+      }
       if (!Directory.Exists(Path.GetDirectoryName(path))) { return new string[0]; }
 
       Stack folders = new Stack();

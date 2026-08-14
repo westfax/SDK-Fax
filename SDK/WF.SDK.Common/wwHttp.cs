@@ -274,6 +274,14 @@ namespace WF.SDK
         return false;
       }
 
+      // Segment check (../, ..\), not Contains("..") which rejects names like "report..2024.pdf".
+      if (Common.FileHelper.IsInvalidFilePath(FileName))
+      {
+        this.cErrorMsg = "Invalid file path";
+        this.bError = true;
+        return false;
+      }
+
       try
       {
         FileStream loFile = new FileStream(FileName, System.IO.FileMode.Open, System.IO.FileAccess.Read);
@@ -305,6 +313,14 @@ namespace WF.SDK
       if (this.nPostMode != 2)
       {
         this.cErrorMsg = "File upload allowed only with Multi-part forms";
+        this.bError = true;
+        return false;
+      }
+
+      // Segment check (../, ..\), not Contains("..") which rejects names like "report..2024.pdf".
+      if (Common.FileHelper.IsInvalidFilePath(FileName))
+      {
+        this.cErrorMsg = "Invalid file path";
         this.bError = true;
         return false;
       }

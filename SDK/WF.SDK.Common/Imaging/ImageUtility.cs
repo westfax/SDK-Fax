@@ -530,6 +530,11 @@ namespace WF.SDK.Common.Imaging
 
     internal static void InternalSaveAs32BitTiff(List<PageImage> pages, string outputFilePath)
     {
+      // Segment check (../, ..\), not Contains("..") which rejects names like "report..2024.pdf".
+      if (FileHelper.IsInvalidFilePath(outputFilePath))
+      {
+        throw new ArgumentException("Invalid file path");
+      }
       if (!Directory.Exists(Path.GetDirectoryName(outputFilePath))) { Directory.CreateDirectory(Path.GetDirectoryName(outputFilePath)); }
       if (File.Exists(outputFilePath)) { File.Delete(outputFilePath); }
 
